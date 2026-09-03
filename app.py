@@ -16,15 +16,14 @@ bot = Bot(token=TOKEN) if TOKEN else None
 def home():
     return render_template('index.html')
 
-# Route webhook unique où Telegram envoie les messages
-@app.route(f'/{TOKEN}', methods=['POST'])
+# Route webhook fixe et propre
+@app.route('/webhook', methods=['POST'])
 def webhook():
-    if not request.json:
-        return "OK", 200
-    
-    # Traitement du message de manière asynchrone dans le contexte Flask
-    update = Update.de_json(request.json, bot)
-    asyncio.run(process_update(update))
+    if request.method == "POST":
+        json_data = request.get_json(force=True)
+        if json_data:
+            update = Update.de_json(json_data, bot)
+            asyncio.run(process_update(update))
     return "OK", 200
 
 async def process_update(update):
@@ -72,17 +71,16 @@ async def process_update(update):
             text=f"🚨 Nouvelle demande FIFA :\nUser ID: {user_id}\nID Melbet: {message_text}\n\nTape: /valider {user_id}"
         )
 
-# Enregistrement automatique du webhook auprès de Telegram au démarrage de l'app
+# Configuration automatique du webhook au démarrage pointant vers /webhook
 def set_webhook():
     if TOKEN:
-        webhook_url = f"{URL_WEBAPP}/{TOKEN}"
+        webhook_url = f"{URL_WEBAPP}/webhook"
         asyncio.run(bot.set_webhook(url=webhook_url))
-        print(f"Webhook configuré sur : {webhook_url}")
+        print(f"Webhook configuré avec succès sur : {webhook_url}")
 
 if __name__ == '__main__':
     set_webhook()
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
 else:
-    # Exécuté automatiquement par Gunicorn sur Render
     set_webhook()
