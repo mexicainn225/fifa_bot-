@@ -1,19 +1,18 @@
 import os
-import asyncio
 import database
-from flask import Flask, render_template, request
-from threading import Thread
+from flask import Flask, request
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, Update
+from telegram import Bot, BotCommand
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
+import asyncio
 
-app = Flask(__name__, template_folder='templates', static_folder='static')
+app = Flask(__name__)
 TOKEN = os.environ.get("TOKEN")
 TON_ID_ADMIN = 5724620019
 URL_WEBAPP = "https://fifa-bot-rnbr.onrender.com"
 
-@app.route('/')
-def home():
-    return render_template('index.html')
+# Initialisation de l'application Telegram pour les handlers
+telegram_app = ApplicationBuilder().token(TOKEN).build()
 
 async def start(update: Update, context):
     user_id = update.effective_user.id
@@ -59,22 +58,28 @@ async def valider(update: Update, context):
         )
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
-def run_telegram_bot():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
-    application = ApplicationBuilder().token(TOKEN).build()
-    application.add_handler(CommandHandler("start", start))
-    application.add_handler(CommandHandler("valider", valider))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
-    application.run_polling(drop_pending_updates=True)
+# Enregistrement des commandes
+telegram_app.add_handler(CommandHandler("start", start))
+telegram_app.add_handler(CommandHandler("valider", valider))
+telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+@app.route('/')
+def home():
+    return "Bot FIFA en ligne et actif !"
+
+@app.route(f'/{TOKEN}', methods=['POST'])
+def webhook():
+    """Route que Telegram appelle automatiquement à chaque message"""
+    update = Update.de_json(request.get_json(force=True), telegram_app.bot)
+    asyncio.run(telegram_app.process_update(update))
+    return 'ok', 200
 
 if __name__ == '__main__':
-    # Lance le bot Telegram dans un thread séparé avec sa propre boucle asyncio
-    t = Thread(target=run_telegram_bot, daemon=True)
-    t.start()
+    # Configuration automatique du webhook auprès de Telegram au démarrage
+    bot_instance = Bot(TOKEN)
+    webhook_url = f"{URL_WEBAPP}/{TOKEN}"
+    asyncio.run(bot_instance.set_webhook(url=webhook_url))
     
-    # Lance Flask sur le port de Render
+    # Lancement du serveur web Flask sur le port de Render
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
