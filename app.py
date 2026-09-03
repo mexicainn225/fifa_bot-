@@ -1,8 +1,7 @@
 import os
 import database
 from flask import Flask, request, render_template
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, Update
-from telegram import Bot
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, Update, Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 import asyncio
 
@@ -11,7 +10,8 @@ TOKEN = os.environ.get("TOKEN")
 TON_ID_ADMIN = 5724620019
 URL_WEBAPP = "https://fifa-bot-rnbr.onrender.com"
 
-telegram_app = ApplicationBuilder().token(TOKEN).build()
+# Initialisation propre de l'application Telegram
+telegram_app = ApplicationBuilder().token(TOKEN).concurrent_updates(True).build()
 
 async def start(update: Update, context):
     user_id = update.effective_user.id
@@ -57,9 +57,19 @@ async def valider(update: Update, context):
         )
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
+# Enregistrement des commandes
 telegram_app.add_handler(CommandHandler("start", start))
 telegram_app.add_handler(CommandHandler("valider", valider))
 telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+# Variable pour s'assurer que l'application telegram est initialisée une seule fois
+_initialized = False
+
+async def initialize_telegram():
+    global _initialized
+    if not _initialized:
+        await telegram_app.initialize()
+        _initialized = True
 
 @app.route('/')
 def home():
@@ -67,7 +77,6 @@ def home():
 
 @app.route('/set_webhook')
 def set_webhook_manual():
-    """Route magique pour forcer l'enregistrement du webhook si Telegram bloque"""
     bot = Bot(TOKEN)
     webhook_url = f"{URL_WEBAPP}/{TOKEN}"
     
@@ -82,11 +91,19 @@ def webhook():
     json_data = request.get_json(force=True)
     update = Update.de_json(json_data, telegram_app.bot)
     
+    # Utilisation d'une boucle locale propre pour éviter le "Event loop is closed"
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
     async def process():
-        await telegram_app.initialize()
+        await initialize_telegram()
         await telegram_app.process_update(update)
+
+    try:
+        loop.run_until_complete(process())
+    finally:
+        loop.close()
         
-    asyncio.run(process())
     return 'ok', 200
 
 if __name__ == '__main__':
