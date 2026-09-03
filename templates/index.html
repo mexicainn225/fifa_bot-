@@ -1,1 +1,283 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FIFA VIP - Pronostics</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-color: #3b82f6;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+            --success-color: #22c55e;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 15px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+            color: #60a5fa;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .match-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border: 1px solid #334155;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-container {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-container img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+
+        .team-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 8px;
+        }
+
+        .prediction-badge {
+            background-color: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚽ Salon VIP FIFA</h1>
+        <p class="subtitle">Pronostics exclusifs du jour</p>
+    </header>
+
+    <div class="container">
+        <!-- Arsenal FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Arsenal_FC.svg.webp') }}" alt="Arsenal FC">
+            </div>
+            <div class="team-name">Arsenal FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Aston Villa FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Aston_Villa_FC_2024.svg.webp') }}" alt="Aston Villa FC">
+            </div>
+            <div class="team-name">Aston Villa FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Brentford FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Brentford_FC_crest.svg') }}" alt="Brentford FC">
+            </div>
+            <div class="team-name">Brentford FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Chelsea FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Chelsea_FC_2026.svg') }}" alt="Chelsea FC">
+            </div>
+            <div class="team-name">Chelsea FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Crystal Palace FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Crystal_Palace_FC_-_2022.svg') }}" alt="Crystal Palace FC">
+            </div>
+            <div class="team-name">Crystal Palace FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Everton FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Everton_FC_2023.svg') }}" alt="Everton FC">
+            </div>
+            <div class="team-name">Everton FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Fulham FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Fulham_FC_(shield).svg') }}" alt="Fulham FC">
+            </div>
+            <div class="team-name">Fulham FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Luton Town FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Luton_Town_2009_FC.svg') }}" alt="Luton Town FC">
+            </div>
+            <div class="team-name">Luton Town FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Manchester United -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='ManchesterUnited.webp') }}" alt="Manchester United">
+            </div>
+            <div class="team-name">Manchester United</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Manchester City FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Manchester_City_FC_badge.svg') }}" alt="Manchester City FC">
+            </div>
+            <div class="team-name">Manchester City FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Newcastle United -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Newcastle_United_Logo.svg.webp') }}" alt="Newcastle United">
+            </div>
+            <div class="team-name">Newcastle United</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Nottingham Forest -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Nottingham_Forest_FC.svg') }}" alt="Nottingham Forest">
+            </div>
+            <div class="team-name">Nottingham Forest</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Tottenham Hotspur -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Tottenham-Hotspur-logo.png') }}" alt="Tottenham Hotspur">
+            </div>
+            <div class="team-name">Tottenham Hotspur</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- West Ham United FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='West_Ham_United_FC_logo.svg.webp') }}" alt="West Ham United FC">
+            </div>
+            <div class="team-name">West Ham United FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Wolverhampton -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='Wolverhampton-620x413.png') }}" alt="Wolverhampton">
+            </div>
+            <div class="team-name">Wolverhampton</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Bournemouth FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='bournemouth.jpg') }}" alt="Bournemouth FC">
+            </div>
+            <div class="team-name">Bournemouth FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Brighton FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='brighton.png') }}" alt="Brighton FC">
+            </div>
+            <div class="team-name">Brighton FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Burnley FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='burnley.png') }}" alt="Burnley FC">
+            </div>
+            <div class="team-name">Burnley FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Liverpool FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='liverpool.jpg') }}" alt="Liverpool FC">
+            </div>
+            <div class="team-name">Liverpool FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+
+        <!-- Sheffield FC -->
+        <div class="match-card">
+            <div class="logo-container">
+                <img src="{{ url_for('static', filename='sheffield(1).png') }}" alt="Sheffield FC">
+            </div>
+            <div class="team-name">Sheffield FC</div>
+            <div class="prediction-badge">Analyse VIP</div>
+        </div>
+    </div>
+
+</body>
+</html>
