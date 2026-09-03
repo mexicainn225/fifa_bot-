@@ -1,5 +1,5 @@
 import os
-import database # Importe le fichier database.py
+import database # Importe ton fichier database.py
 from flask import Flask, render_template, request
 from threading import Thread
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
@@ -67,20 +67,23 @@ async def valider(update, context):
         )
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
-def run_web():
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port, use_reloader=False)
-
-# Lancement propre : Flask tourne en arrière-plan via un thread, et le bot tourne directement ici
-if __name__ == '__main__':
-    Thread(target=run_web, daemon=True).start()
-    
+def run_bot():
     if TOKEN:
         bot_app = ApplicationBuilder().token(TOKEN).build()
         bot_app.add_handler(CommandHandler("start", start))
         bot_app.add_handler(CommandHandler("valider", valider))
         bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        print("Lancement du bot en mode polling (modèle de l'ancien robot)...")
+        print("Démarrage du bot en mode polling...")
         bot_app.run_polling(drop_pending_updates=True)
     else:
         print("❌ ERREUR : Aucun TOKEN trouvé !")
+
+# Lancement automatique du bot en arrière-plan dès que Gunicorn charge l'application
+if TOKEN:
+    bot_thread = Thread(target=run_bot, daemon=True)
+    bot_thread.start()
+    print("Thread du bot initialisé et lancé avec succès.")
+
+if __name__ == '__main__':
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port)
