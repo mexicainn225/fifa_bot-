@@ -1,88 +1,31 @@
 import os
-import database
-from flask import Flask, request, render_template
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, Update
-from telegram import Bot
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
-import asyncio
+from supabase import create_client
 
-app = Flask(__name__, template_folder='templates', static_folder='static')
-TOKEN = os.environ.get("TOKEN")
-TON_ID_ADMIN = 5724620019
-URL_WEBAPP = "https://fifa-bot-rnbr.onrender.com"
+url = os.environ.get("SUPABASE_URL")
+key = os.environ.get("SUPABASE_KEY")
+supabase = create_client(url, key)
 
-telegram_app = ApplicationBuilder().token(TOKEN).build()
+def ajouter_utilisateur(user_id, id_melbet):
+    try:
+        supabase.table("users").upsert({
+            "user_id": user_id, 
+            "id_1win": id_melbet,
+            "status": "pending"
+        }).execute()
+    except Exception as e:
+        print(f"Erreur Supabase (ajouter_utilisateur) : {e}")
 
-async def start(update: Update, context):
-    user_id = update.effective_user.id
-    if database.est_valide(user_id):
-        keyboard = [[InlineKeyboardButton("🚀 Lancer l'Application FIFA", web_app=WebAppInfo(url=URL_WEBAPP))]]
-        await update.message.reply_text("Re-bonjour champion ! Voici ton accès direct :", reply_markup=InlineKeyboardMarkup(keyboard))
-    else:
-        message = (
-            "Bienvenue sur le bot FIFA VIP ⚽\n\n"
-            "Pour débloquer tes accès aux pronostics, suis ces étapes :\n\n"
-            "1️⃣ Inscris-toi sur Melbet ici : https://lkbb.cc/78634e\n"
-            "2️⃣ Utilise le code promo : COK225\n"
-            "3️⃣ Effectue une recharge sur ton compte.\n"
-            "4️⃣ Envoie ton ID Melbet ici pour validation."
-        )
-        await update.message.reply_text(message)
+def valider_utilisateur(user_id):
+    try:
+        supabase.table("users").update({"status": "active"}).eq("user_id", user_id).execute()
+    except Exception as e:
+        print(f"Erreur Supabase (valider_utilisateur) : {e}")
 
-async def handle_message(update: Update, context):
-    user_id = update.effective_user.id
-    message_text = update.message.text
-    
-    database.ajouter_utilisateur(user_id, message_text)
-    await update.message.reply_text("ID Melbet reçu ! J'ai transmis ta demande à l'admin. Attends la validation. ✅")
-    
-    await context.bot.send_message(
-        chat_id=TON_ID_ADMIN, 
-        text=f"🚨 Nouvelle demande FIFA :\nUser ID: {user_id}\nID Melbet: {message_text}\n\nTape: /valider {user_id}"
-    )
-
-async def valider(update: Update, context):
-    if update.effective_user.id != TON_ID_ADMIN:
-        return
-    
-    if context.args:
-        user_id_a_valider = int(context.args[0])
-        database.valider_utilisateur(user_id_a_valider)
-        
-        keyboard = [[InlineKeyboardButton("🚀 Lancer l'Application FIFA", web_app=WebAppInfo(url=URL_WEBAPP))]]
-        await context.bot.send_message(
-            chat_id=user_id_a_valider,
-            text="✅ Félicitations ! Ton ID a été validé. Ton accès est ouvert.",
-            reply_markup=InlineKeyboardMarkup(keyboard)
-        )
-        await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
-
-telegram_app.add_handler(CommandHandler("start", start))
-telegram_app.add_handler(CommandHandler("valider", valider))
-telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
-@app.route('/')
-def home():
-    return render_template('index.html')
-
-@app.route(f'/{TOKEN}', methods=['POST'])
-def webhook():
-    json_data = request.get_json(force=True)
-    update = Update.de_json(json_data, telegram_app.bot)
-    
-    async def process():
-        await telegram_app.initialize()
-        await telegram_app.process_update(update)
-        
-    asyncio.run(process())
-    return 'ok', 200
-
-if __name__ == '__main__':
-    async def setup_webhook():
-        bot = Bot(TOKEN)
-        await bot.set_webhook(url=f"{URL_WEBAPP}/{TOKEN}")
-    
-    asyncio.run(setup_webhook())
-    
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
+def est_valide(user_id):
+    try:
+        response = supabase.table("users").select("status").eq("user_id", user_id).execute()
+        data = response.data
+        return len(data) > 0 and data[0].get('status') == 'active'
+    except Exception as e:
+        print(f"Erreur Supabase (est_valide) : {e}")
+        return False
