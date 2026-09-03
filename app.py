@@ -9,7 +9,7 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 TOKEN = os.environ.get("TOKEN")
 TON_ID_ADMIN = 5724620019 # ID Admin configuré
 
-# URL exacte de ton service sur Render
+# URL exacte de ton nouveau service FIFA sur Render
 URL_WEBAPP = "https://fifa-bot-rnbr.onrender.com"
 
 @app.route('/')
@@ -72,16 +72,10 @@ def run_web():
     app.run(host='0.0.0.0', port=port)
 
 if __name__ == '__main__':
-    # Flask tourne en arrière-plan dans un thread
     Thread(target=run_web, daemon=True).start()
     
-    # Le Bot Telegram tourne dans le thread principal (ce qui évite tous les bugs de polling)
-    if TOKEN:
-        bot_app = ApplicationBuilder().token(TOKEN).build()
-        bot_app.add_handler(CommandHandler("start", start))
-        bot_app.add_handler(CommandHandler("valider", valider))
-        bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        print("Bot démarré en mode polling...")
-        bot_app.run_polling(drop_pending_updates=True)
-    else:
-        print("❌ ERREUR : Aucun TOKEN trouvé !")
+    bot_app = ApplicationBuilder().token(TOKEN).build()
+    bot_app.add_handler(CommandHandler("start", start))
+    bot_app.add_handler(CommandHandler("valider", valider))
+    bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    bot_app.run_polling()
