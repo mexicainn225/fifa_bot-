@@ -34,13 +34,13 @@ def set_webhook_manual():
 @app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
     data = request.get_json(force=True)
-    
+
     if "message" in data:
         msg = data["message"]
         chat_id = msg["chat"]["id"]
         user_id = msg["from"]["id"]
         text = msg.get("text", "")
-        
+
         # Commande /start
         if text.startswith("/start"):
             if database.est_valide(user_id):
@@ -60,14 +60,14 @@ def webhook():
                     "4️⃣ Envoie ton ID Melbet ici pour validation."
                 )
                 send_telegram_message(chat_id, message)
-                
+
         # Commande /valider (par l'admin)
         elif text.startswith("/valider") and user_id == TON_ID_ADMIN:
             parts = text.split()
             if len(parts) > 1:
                 user_id_a_valider = int(parts[1])
                 database.valider_utilisateur(user_id_a_valider)
-                
+
                 keyboard = {
                     "inline_keyboard": [[
                         {"text": "🚀 Lancer l'Application FIFA", "web_app": {"url": URL_WEBAPP}}
@@ -79,14 +79,22 @@ def webhook():
                     reply_markup=keyboard
                 )
                 send_telegram_message(chat_id, f"Utilisateur {user_id_a_valider} validé avec succès !")
-                
-        # Réception de l'ID Melbet
+
+        # Réception d'un texte (ID Melbet ou message quelconque)
         elif text and not text.startswith("/"):
-            database.ajouter_utilisateur(user_id, text)
-            send_telegram_message(chat_id, "ID Melbet reçu ! J'ai transmis ta demande à l'admin. Attends la validation. ✅")
-            
-            admin_text = f"🚨 Nouvelle demande FIFA :\nUser ID: {user_id}\nID Melbet: {text}\n\nTape: /valider {user_id}"
-            send_telegram_message(TON_ID_ADMIN, admin_text)
+            if database.est_valide(user_id):
+                keyboard = {
+                    "inline_keyboard": [[
+                        {"text": "🚀 Lancer l'Application FIFA", "web_app": {"url": URL_WEBAPP}}
+                    ]]
+                }
+                send_telegram_message(chat_id, "Tu as déjà un accès valide ! Clique ci-dessous pour lancer l'application :", reply_markup=keyboard)
+            else:
+                database.ajouter_utilisateur(user_id, text)
+                send_telegram_message(chat_id, "ID Melbet reçu ! J'ai transmis ta demande à l'admin. Attends la validation. ✅")
+
+                admin_text = f"🚨 Nouvelle demande FIFA :\nUser ID: {user_id}\nID Melbet: {text}\n\nTape: /valider {user_id}"
+                send_telegram_message(TON_ID_ADMIN, admin_text)
 
     return 'ok', 200
 
