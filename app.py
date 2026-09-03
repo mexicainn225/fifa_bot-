@@ -61,24 +61,32 @@ def webhook():
                 )
                 send_telegram_message(chat_id, message)
 
-        # Commande /valider (par l'admin)
+        # Commande /valider (par l'admin) - Gère avec ou sans espace
         elif text.startswith("/valider") and user_id == TON_ID_ADMIN:
-            parts = text.split()
-            if len(parts) > 1:
-                user_id_a_valider = int(parts[1])
-                database.valider_utilisateur(user_id_a_valider)
+            clean_text = text.replace("/valider", "").strip()
+            if not clean_text:
+                parts = text.split()
+                if len(parts) > 1:
+                    clean_text = parts[1]
+            
+            if clean_text:
+                try:
+                    user_id_a_valider = int(clean_text)
+                    database.valider_utilisateur(user_id_a_valider)
 
-                keyboard = {
-                    "inline_keyboard": [[
-                        {"text": "🚀 Lancer l'Application FIFA", "web_app": {"url": URL_WEBAPP}}
-                    ]]
-                }
-                send_telegram_message(
-                    user_id_a_valider,
-                    "✅ Félicitations ! Ton ID a été validé. Ton accès est ouvert.",
-                    reply_markup=keyboard
-                )
-                send_telegram_message(chat_id, f"Utilisateur {user_id_a_valider} validé avec succès !")
+                    keyboard = {
+                        "inline_keyboard": [[
+                            {"text": "🚀 Lancer l'Application FIFA", "web_app": {"url": URL_WEBAPP}}
+                        ]]
+                    }
+                    send_telegram_message(
+                        user_id_a_valider,
+                        "✅ Félicitations ! Ton ID a été validé. Ton accès est ouvert.",
+                        reply_markup=keyboard
+                    )
+                    send_telegram_message(chat_id, f"Utilisateur {user_id_a_valider} validé avec succès !")
+                except ValueError:
+                    send_telegram_message(chat_id, "⚠️ ID invalide. Format attendu : /valider <user_id>")
 
         # Réception d'un texte (ID Melbet ou message quelconque)
         elif text and not text.startswith("/"):
