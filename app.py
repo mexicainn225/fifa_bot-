@@ -10,8 +10,8 @@ TOKEN = os.environ.get("TOKEN")
 TON_ID_ADMIN = 5724620019
 URL_WEBAPP = "https://fifa-bot-rnbr.onrender.com"
 
-# Initialisation propre de l'application Telegram
-telegram_app = ApplicationBuilder().token(TOKEN).concurrent_updates(True).build()
+# Initialisation de l'application Telegram
+telegram_app = ApplicationBuilder().token(TOKEN).build()
 
 async def start(update: Update, context):
     user_id = update.effective_user.id
@@ -57,19 +57,10 @@ async def valider(update: Update, context):
         )
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
-# Enregistrement des commandes
+# Enregistrement des handlers
 telegram_app.add_handler(CommandHandler("start", start))
 telegram_app.add_handler(CommandHandler("valider", valider))
 telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-
-# Variable pour s'assurer que l'application telegram est initialisée une seule fois
-_initialized = False
-
-async def initialize_telegram():
-    global _initialized
-    if not _initialized:
-        await telegram_app.initialize()
-        _initialized = True
 
 @app.route('/')
 def home():
@@ -91,18 +82,12 @@ def webhook():
     json_data = request.get_json(force=True)
     update = Update.de_json(json_data, telegram_app.bot)
     
-    # Utilisation d'une boucle locale propre pour éviter le "Event loop is closed"
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
-    async def process():
-        await initialize_telegram()
+    async def process_update():
+        await telegram_app.initialize()
         await telegram_app.process_update(update)
 
-    try:
-        loop.run_until_complete(process())
-    finally:
-        loop.close()
+    # Utilisation d'asyncio.run propre sans casser le gestionnaire réseau
+    asyncio.run(process_update())
         
     return 'ok', 200
 
