@@ -24,7 +24,7 @@
 
         header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
 
         h1 {
@@ -38,6 +38,77 @@
             font-size: 0.9rem;
         }
 
+        /* Panneau de sélection et d'analyse */
+        .prediction-panel {
+            background-color: var(--card-bg);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 560px;
+            margin: 0 auto 25px auto;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+        }
+
+        .prediction-panel h2 {
+            font-size: 1.1rem;
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #60a5fa;
+        }
+
+        .selectors-container {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        select {
+            background-color: #0f172a;
+            color: var(--text-color);
+            border: 1px solid #475569;
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            flex: 1;
+            min-width: 200px;
+            outline: none;
+        }
+
+        #btn-analyser {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: none; /* Caché par défaut */
+            margin: 0 auto;
+        }
+
+        #btn-analyser:hover {
+            background-color: #2563eb;
+        }
+
+        #resultat-analyse {
+            margin-top: 15px;
+            font-size: 0.95rem;
+        }
+
+        .result-card {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success-color);
+            padding: 12px;
+            border-radius: 8px;
+            color: #4ade80;
+        }
+
+        /* Grille des équipes */
         .container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -56,7 +127,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
         }
 
         .logo-container {
@@ -77,16 +148,6 @@
         .team-name {
             font-weight: 600;
             font-size: 0.95rem;
-            margin-bottom: 8px;
-        }
-
-        .prediction-badge {
-            background-color: rgba(59, 130, 246, 0.15);
-            color: #60a5fa;
-            font-size: 0.8rem;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-weight: 500;
         }
     </style>
 </head>
@@ -94,9 +155,67 @@
 
     <header>
         <h1>⚽ Salon VIP FIFA</h1>
-        <p class="subtitle">Pronostics exclusifs du jour</p>
+        <p class="subtitle">Sélectionne deux équipes pour lancer une prédiction</p>
     </header>
 
+    <!-- Zone de Simulation de Prédiction -->
+    <div class="prediction-panel">
+        <h2>Simulateur de Match</h2>
+        <div class="selectors-container">
+            <select id="team1" onchange="verifierSelection()">
+                <option value="">-- Choisir l'équipe 1 --</option>
+                <option value="Arsenal FC">Arsenal FC</option>
+                <option value="Aston Villa FC">Aston Villa FC</option>
+                <option value="Brentford FC">Brentford FC</option>
+                <option value="Chelsea FC">Chelsea FC</option>
+                <option value="Crystal Palace FC">Crystal Palace FC</option>
+                <option value="Everton FC">Everton FC</option>
+                <option value="Fulham FC">Fulham FC</option>
+                <option value="Luton Town FC">Luton Town FC</option>
+                <option value="Manchester United">Manchester United</option>
+                <option value="Manchester City FC">Manchester City FC</option>
+                <option value="Newcastle United">Newcastle United</option>
+                <option value="Nottingham Forest">Nottingham Forest</option>
+                <option value="Tottenham Hotspur">Tottenham Hotspur</option>
+                <option value="West Ham United FC">West Ham United FC</option>
+                <option value="Wolverhampton">Wolverhampton</option>
+                <option value="Bournemouth FC">Bournemouth FC</option>
+                <option value="Brighton FC">Brighton FC</option>
+                <option value="Burnley FC">Burnley FC</option>
+                <option value="Liverpool FC">Liverpool FC</option>
+                <option value="Sheffield FC">Sheffield FC</option>
+            </select>
+
+            <select id="team2" onchange="verifierSelection()">
+                <option value="">-- Choisir l'équipe 2 --</option>
+                <option value="Arsenal FC">Arsenal FC</option>
+                <option value="Aston Villa FC">Aston Villa FC</option>
+                <option value="Brentford FC">Brentford FC</option>
+                <option value="Chelsea FC">Chelsea FC</option>
+                <option value="Crystal Palace FC">Crystal Palace FC</option>
+                <option value="Everton FC">Everton FC</option>
+                <option value="Fulham FC">Fulham FC</option>
+                <option value="Luton Town FC">Luton Town FC</option>
+                <option value="Manchester United">Manchester United</option>
+                <option value="Manchester City FC">Manchester City FC</option>
+                <option value="Newcastle United">Newcastle United</option>
+                <option value="Nottingham Forest">Nottingham Forest</option>
+                <option value="Tottenham Hotspur">Tottenham Hotspur</option>
+                <option value="West Ham United FC">West Ham United FC</option>
+                <option value="Wolverhampton">Wolverhampton</option>
+                <option value="Bournemouth FC">Bournemouth FC</option>
+                <option value="Brighton FC">Brighton FC</option>
+                <option value="Burnley FC">Burnley FC</option>
+                <option value="Liverpool FC">Liverpool FC</option>
+                <option value="Sheffield FC">Sheffield FC</option>
+            </select>
+        </div>
+
+        <button id="btn-analyser" onclick="lancerAnalyse()">🔍 Lancer l'analyse</button>
+        <div id="resultat-analyse"></div>
+    </div>
+
+    <!-- Grille des équipes (sans badge "Analyse VIP") -->
     <div class="container">
         <!-- Arsenal FC -->
         <div class="match-card">
@@ -104,7 +223,6 @@
                 <img src="{{ url_for('static', filename='Arsenal_FC.svg.webp') }}" alt="Arsenal FC">
             </div>
             <div class="team-name">Arsenal FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Aston Villa FC -->
@@ -113,7 +231,6 @@
                 <img src="{{ url_for('static', filename='Aston_Villa_FC_2024.svg.webp') }}" alt="Aston Villa FC">
             </div>
             <div class="team-name">Aston Villa FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Brentford FC -->
@@ -122,7 +239,6 @@
                 <img src="{{ url_for('static', filename='Brentford_FC_crest.svg') }}" alt="Brentford FC">
             </div>
             <div class="team-name">Brentford FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Chelsea FC -->
@@ -131,7 +247,6 @@
                 <img src="{{ url_for('static', filename='chelsea.jpg') }}" alt="Chelsea FC">
             </div>
             <div class="team-name">Chelsea FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Crystal Palace FC -->
@@ -140,7 +255,6 @@
                 <img src="{{ url_for('static', filename='Crystal_Palace_FC_-_2022.svg') }}" alt="Crystal Palace FC">
             </div>
             <div class="team-name">Crystal Palace FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Everton FC -->
@@ -149,7 +263,6 @@
                 <img src="{{ url_for('static', filename='everton.png') }}" alt="Everton FC">
             </div>
             <div class="team-name">Everton FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Fulham FC -->
@@ -158,7 +271,6 @@
                 <img src="{{ url_for('static', filename='Fulham_FC_(shield).svg') }}" alt="Fulham FC">
             </div>
             <div class="team-name">Fulham FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Luton Town FC -->
@@ -167,7 +279,6 @@
                 <img src="{{ url_for('static', filename='Luton_Town_2009_FC.svg') }}" alt="Luton Town FC">
             </div>
             <div class="team-name">Luton Town FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Manchester United -->
@@ -176,7 +287,6 @@
                 <img src="{{ url_for('static', filename='ManchesterUnited.webp') }}" alt="Manchester United">
             </div>
             <div class="team-name">Manchester United</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Manchester City FC -->
@@ -185,7 +295,6 @@
                 <img src="{{ url_for('static', filename='Manchester_City_FC_badge.svg') }}" alt="Manchester City FC">
             </div>
             <div class="team-name">Manchester City FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Newcastle United -->
@@ -194,7 +303,6 @@
                 <img src="{{ url_for('static', filename='Newcastle_United_Logo.svg.webp') }}" alt="Newcastle United">
             </div>
             <div class="team-name">Newcastle United</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Nottingham Forest -->
@@ -203,7 +311,6 @@
                 <img src="{{ url_for('static', filename='Nottingham.jpg') }}" alt="Nottingham Forest">
             </div>
             <div class="team-name">Nottingham Forest</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Tottenham Hotspur -->
@@ -212,7 +319,6 @@
                 <img src="{{ url_for('static', filename='Tottenham-Hotspur-logo.png') }}" alt="Tottenham Hotspur">
             </div>
             <div class="team-name">Tottenham Hotspur</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- West Ham United FC -->
@@ -221,7 +327,6 @@
                 <img src="{{ url_for('static', filename='West_Ham_United_FC_logo.svg.webp') }}" alt="West Ham United FC">
             </div>
             <div class="team-name">West Ham United FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Wolverhampton -->
@@ -230,7 +335,6 @@
                 <img src="{{ url_for('static', filename='Wolverhampton-620x413.png') }}" alt="Wolverhampton">
             </div>
             <div class="team-name">Wolverhampton</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Bournemouth FC -->
@@ -239,7 +343,6 @@
                 <img src="{{ url_for('static', filename='bournemouth.jpg') }}" alt="Bournemouth FC">
             </div>
             <div class="team-name">Bournemouth FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Brighton FC -->
@@ -248,7 +351,6 @@
                 <img src="{{ url_for('static', filename='brighton.png') }}" alt="Brighton FC">
             </div>
             <div class="team-name">Brighton FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Burnley FC -->
@@ -257,7 +359,6 @@
                 <img src="{{ url_for('static', filename='burnley.png') }}" alt="Burnley FC">
             </div>
             <div class="team-name">Burnley FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Liverpool FC -->
@@ -266,7 +367,6 @@
                 <img src="{{ url_for('static', filename='liverpool.jpg') }}" alt="Liverpool FC">
             </div>
             <div class="team-name">Liverpool FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
 
         <!-- Sheffield FC -->
@@ -275,9 +375,48 @@
                 <img src="{{ url_for('static', filename='sheffield(1).png') }}" alt="Sheffield FC">
             </div>
             <div class="team-name">Sheffield FC</div>
-            <div class="prediction-badge">Analyse VIP</div>
         </div>
     </div>
 
+    <script>
+        function verifierSelection() {
+            const team1 = document.getElementById('team1').value;
+            const team2 = document.getElementById('team2').value;
+            const btnAnalyser = document.getElementById('btn-analyser');
+            const resultatDiv = document.getElementById('resultat-analyse');
+
+            // Réinitialise le résultat si on change de sélection
+            resultatDiv.innerHTML = '';
+
+            // Affiche le bouton si 2 équipes différentes sont sélectionnées
+            if (team1 && team2 && team1 !== team2) {
+                btnAnalyser.style.display = 'block';
+            } else {
+                btnAnalyser.style.display = 'none';
+            }
+        }
+
+        function lancerAnalyse() {
+            const team1 = document.getElementById('team1').value;
+            const team2 = document.getElementById('team2').value;
+
+            if (!team1 || !team2 || team1 === team2) return;
+
+            // 1. Victoire aléatoire de l'une des deux équipes
+            const vainqueur = Math.random() < 0.5 ? team1 : team2;
+
+            // 2. Total de buts aléatoire entre 14 et 16 inclus
+            const totalButs = Math.floor(Math.random() * (16 - 14 + 1)) + 14;
+
+            // Affichage propre du résultat
+            const resultatDiv = document.getElementById('resultat-analyse');
+            resultatDiv.innerHTML = `
+                <div class="result-card">
+                    <p style="margin: 0 0 5px 0;">🏆 Vainqueur : <b>${vainqueur}</b></p>
+                    <p style="margin: 0;">⚽ Total de buts : <b>${totalButs} buts</b></p>
+                </div>
+            `;
+        }
+    </script>
 </body>
 </html>
