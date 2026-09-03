@@ -69,17 +69,25 @@ async def valider(update, context):
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
 def run_bot():
-    loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop)
-    
-    bot_app = ApplicationBuilder().token(TOKEN).build()
-    bot_app.add_handler(CommandHandler("start", start))
-    bot_app.add_handler(CommandHandler("valider", valider))
-    bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
-    bot_app.run_polling()
+    try:
+        print("Démarrage du thread du bot Telegram...")
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        
+        bot_app = ApplicationBuilder().token(TOKEN).build()
+        bot_app.add_handler(CommandHandler("start", start))
+        bot_app.add_handler(CommandHandler("valider", valider))
+        bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        
+        print("Bot configuré avec succès, lancement du polling...")
+        bot_app.run_polling()
+    except Exception as e:
+        print(f"❌ Erreur critique dans le bot Telegram : {e}")
 
 # Lancement automatique du bot en arrière-plan dès que Gunicorn charge l'application sur Render
 if TOKEN:
     bot_thread = Thread(target=run_bot, daemon=True)
     bot_thread.start()
+    print("Thread du bot initialisé.")
+else:
+    print("❌ ERREUR : Aucun TOKEN trouvé dans les variables d'environnement !")
