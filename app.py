@@ -1,5 +1,4 @@
 import os
-import asyncio
 import database # Importe ton fichier database.py
 from flask import Flask, render_template
 from threading import Thread
