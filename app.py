@@ -1,4 +1,5 @@
 import os
+import asyncio
 import database # Importe ton fichier database.py
 from flask import Flask, render_template
 from threading import Thread
@@ -67,17 +68,24 @@ async def valider(update, context):
         )
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
+async def main_bot():
+    bot_app = ApplicationBuilder().token(TOKEN).build()
+    bot_app.add_handler(CommandHandler("start", start))
+    bot_app.add_handler(CommandHandler("valider", valider))
+    bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
+    await bot_app.initialize()
+    await bot_app.start()
+    await bot_app.updater.start_polling(drop_pending_updates=True)
+    
+    # Maintient le bot actif dans son thread
+    stop_event = asyncio.Event()
+    await stop_event.wait()
+
 def run_bot():
     try:
-        print("Démarrage du thread du bot Telegram...")
-        
-        bot_app = ApplicationBuilder().token(TOKEN).build()
-        bot_app.add_handler(CommandHandler("start", start))
-        bot_app.add_handler(CommandHandler("valider", valider))
-        bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        
-        print("Bot configuré avec succès, lancement du polling...")
-        bot_app.run_polling(drop_pending_updates=True)
+        print("Démarrage du thread du bot Telegram avec asyncio.run...")
+        asyncio.run(main_bot())
     except Exception as e:
         print(f"❌ Erreur critique dans le bot Telegram : {e}")
 
