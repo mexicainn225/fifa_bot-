@@ -1,17 +1,16 @@
 import os
 import database
-from flask import Flask, request
+from flask import Flask, request, render_template
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, Update
 from telegram import Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 import asyncio
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates', static_folder='static')
 TOKEN = os.environ.get("TOKEN")
 TON_ID_ADMIN = 5724620019
 URL_WEBAPP = "https://fifa-bot-rnbr.onrender.com"
 
-# Construction de l'application Telegram
 telegram_app = ApplicationBuilder().token(TOKEN).build()
 
 async def start(update: Update, context):
@@ -58,18 +57,28 @@ async def valider(update: Update, context):
         )
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
-# Enregistrement des handlers
 telegram_app.add_handler(CommandHandler("start", start))
 telegram_app.add_handler(CommandHandler("valider", valider))
 telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
 @app.route('/')
 def home():
-    return "Bot FIFA Webhook Actif !"
+    return render_template('index.html')
+
+@app.route('/set_webhook')
+def set_webhook_manual():
+    """Route magique pour forcer l'enregistrement du webhook si Telegram bloque"""
+    bot = Bot(TOKEN)
+    webhook_url = f"{URL_WEBAPP}/{TOKEN}"
+    
+    async def reg():
+        await bot.set_webhook(url=webhook_url)
+    
+    asyncio.run(reg())
+    return f"Webhook configuré avec succès sur : {webhook_url}", 200
 
 @app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
-    """Route sécurisée appelée par Telegram"""
     json_data = request.get_json(force=True)
     update = Update.de_json(json_data, telegram_app.bot)
     
@@ -81,13 +90,5 @@ def webhook():
     return 'ok', 200
 
 if __name__ == '__main__':
-    # Configuration du webhook auprès de Telegram
-    async def setup_webhook():
-        bot = Bot(TOKEN)
-        await bot.set_webhook(url=f"{URL_WEBAPP}/{TOKEN}")
-    
-    asyncio.run(setup_webhook())
-    
-    # Démarrage de Flask
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
