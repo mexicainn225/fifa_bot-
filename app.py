@@ -71,8 +71,6 @@ async def valider(update, context):
 def run_bot():
     try:
         print("Démarrage du thread du bot Telegram...")
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
         
         bot_app = ApplicationBuilder().token(TOKEN).build()
         bot_app.add_handler(CommandHandler("start", start))
@@ -80,7 +78,7 @@ def run_bot():
         bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         
         print("Bot configuré avec succès, lancement du polling...")
-        bot_app.run_polling()
+        bot_app.run_polling(drop_pending_updates=True)
     except Exception as e:
         print(f"❌ Erreur critique dans le bot Telegram : {e}")
 
