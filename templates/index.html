@@ -29,7 +29,7 @@
         }
 
         h1 {
-            font-size: 1.5rem;
+            font-size: 1.4rem;
             margin-bottom: 5px;
             color: #60a5fa;
         }
@@ -184,7 +184,7 @@
 <body>
 
     <header>
-        <h1>⚽ Salon VIP FIFA</h1>
+        <h1>⚽ MELBET VIP FIFA FC24 4X4 ANGLETERRE</h1>
         <p class="subtitle">Choisis 2 équipes et l'heure du match à venir</p>
     </header>
 
@@ -372,7 +372,6 @@
 
             if (!equipe1 || !equipe2 || !matchTime) return;
 
-            // Génération identique et fixe pour tout le monde pour un match et une heure donnée
             const chaineUnique = equipe1 + equipe2 + matchTime;
             let hash = 0;
             for (let i = 0; i < chaineUnique.length; i++) {
@@ -382,7 +381,7 @@
             const randomFixe = Math.abs(hash);
 
             const vainqueur = (randomFixe % 2 === 0) ? equipe1 : equipe2;
-            const totalButs = 14 + (randomFixe % 3); // 14, 15 ou 16
+            const totalButs = 14 + (randomFixe % 3);
 
             resultatDiv.innerHTML = `
                 <div class="result-card">
