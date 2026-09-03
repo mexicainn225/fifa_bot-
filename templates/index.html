@@ -165,7 +165,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            pointer-events: none; /* Empêche le clic de bloquer sur l'image */
+            pointer-events: none;
         }
 
         .logo-container img {
@@ -177,7 +177,7 @@
         .team-name {
             font-weight: 600;
             font-size: 0.95rem;
-            pointer-events: none; /* Empêche le clic de bloquer sur le texte */
+            pointer-events: none;
         }
     </style>
 </head>
@@ -185,22 +185,21 @@
 
     <header>
         <h1>⚽ Salon VIP FIFA</h1>
-        <p class="subtitle">Clique sur 2 équipes pour simuler le match</p>
+        <p class="subtitle">Choisis 2 équipes et l'heure du match à venir</p>
     </header>
 
     <div class="prediction-panel">
-        <h2>Match Sélectionné</h2>
+        <h2>Prédiction d'avant-match</h2>
         <div id="info-selection" class="info-selection">Aucune équipe sélectionnée (Choisis-en 2 ci-dessous)</div>
         
         <div class="time-container">
             <label for="match-time">Heure du match :</label>
             <select id="match-time" onchange="verifierFormulaire()">
                 <option value="">-- Choisir une heure --</option>
-                <!-- Les options de 10 en 10 minutes seront générées automatiquement -->
             </select>
         </div>
 
-        <button id="btn-analyser" onclick="lancerAnalyse()">🔍 Lancer l'analyse</button>
+        <button id="btn-analyser" onclick="lancerAnalyse()">🔍 Obtenir la prédiction</button>
         <div id="resultat-analyse"></div>
     </div>
 
@@ -288,7 +287,6 @@
     </div>
 
     <script>
-        // Génération automatique des heures de 10 en 10 minutes (00:00 à 23:50)
         window.onload = function() {
             const selectTime = document.getElementById('match-time');
             for (let h = 0; h < 24; h++) {
@@ -313,7 +311,6 @@
         function gererClicEquipe(cardElement, nomEquipe) {
             document.getElementById('resultat-analyse').innerHTML = '';
 
-            // Si la carte est déjà sélectionnée, on la désélectionne
             if (cardElement.classList.contains('selected')) {
                 cardElement.classList.remove('selected');
                 if (selectedCard1 === cardElement) {
@@ -326,7 +323,6 @@
                     equipe2 = null;
                 }
             } else {
-                // Sinon on l'ajoute si on a moins de 2 sélections
                 if (!equipe1) {
                     equipe1 = nomEquipe;
                     selectedCard1 = cardElement;
@@ -336,7 +332,6 @@
                     selectedCard2 = cardElement;
                     cardElement.classList.add('selected');
                 } else {
-                    // Si on essaie d'en sélectionner une 3ème, on remplace la 2ème
                     if (selectedCard2) selectedCard2.classList.remove('selected');
                     equipe2 = nomEquipe;
                     selectedCard2 = cardElement;
@@ -377,22 +372,7 @@
 
             if (!equipe1 || !equipe2 || !matchTime) return;
 
-            const maintenant = new Date();
-            const heuresActuelles = String(maintenant.getHours()).padStart(2, '0');
-            const minutesActuelles = String(maintenant.getMinutes()).padStart(2, '0');
-            const heureActuelleStr = `${heuresActuelles}:${minutesActuelles}`;
-
-            if (matchTime > heureActuelleStr) {
-                resultatDiv.innerHTML = `
-                    <div class="error-card">
-                        ⏳ Le match de <b>${matchTime}</b> n'a pas encore commencé.<br>
-                        L'analyse sera disponible une fois l'heure passée.
-                    </div>
-                `;
-                return;
-            }
-
-            // Génération identique pour tout le monde selon le match et l'heure
+            // Génération identique et fixe pour tout le monde pour un match et une heure donnée
             const chaineUnique = equipe1 + equipe2 + matchTime;
             let hash = 0;
             for (let i = 0; i < chaineUnique.length; i++) {
@@ -406,8 +386,8 @@
 
             resultatDiv.innerHTML = `
                 <div class="result-card">
-                    <p style="margin: 0 0 5px 0;">🏆 Vainqueur : <b>${vainqueur}</b></p>
-                    <p style="margin: 0;">⚽ Total de buts : <b>${totalButs} buts</b></p>
+                    <p style="margin: 0 0 5px 0;">🏆 Vainqueur estimé : <b>${vainqueur}</b></p>
+                    <p style="margin: 0;">⚽ Total de buts prévu : <b>${totalButs} buts</b></p>
                 </div>
             `;
         }
