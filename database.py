@@ -1,9 +1,9 @@
 import os
-from supabase import create_client
+from supabase import create_client, Client
 
-url = os.environ.get("SUPABASE_URL")
-key = os.environ.get("SUPABASE_KEY")
-supabase = create_client(url, key)
+url: str = os.environ.get("SUPABASE_URL")
+key: str = os.environ.get("SUPABASE_KEY")
+supabase: Client = create_client(url, key)
 
 def ajouter_utilisateur(user_id, id_melbet):
     try:
@@ -11,7 +11,7 @@ def ajouter_utilisateur(user_id, id_melbet):
             "user_id": int(user_id), 
             "id_1win": str(id_melbet),
             "statut": "pending"
-        }).execute()
+        }, on_conflict="user_id").execute()
     except Exception as e:
         print(f"Erreur Supabase (ajouter_utilisateur) : {e}")
 
