@@ -74,7 +74,7 @@ def run_bot():
         bot_app.add_handler(CommandHandler("valider", valider))
         bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
         print("Démarrage du bot en mode polling...")
-        bot_app.run_polling(drop_pending_updates=True)
+        bot_app.run_polling(drop_pending_updates=True, stop_signals=None)
     else:
         print("❌ ERREUR : Aucun TOKEN trouvé !")
 
