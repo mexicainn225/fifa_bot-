@@ -1,14 +1,13 @@
 import os
-import asyncio
-import database # Importe ton fichier database.py
-from flask import Flask, render_template
+import database # Importe le fichier database.py
+from flask import Flask, render_template, request
 from threading import Thread
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 
 app = Flask(__name__, template_folder='templates', static_folder='static')
 TOKEN = os.environ.get("TOKEN")
-TON_ID_ADMIN = 5724620019 # Ton ID Admin Telegram
+TON_ID_ADMIN = 5724620019 # ID Admin configuré
 
 # URL exacte de ton service sur Render
 URL_WEBAPP = "https://fifa-bot-rnbr.onrender.com"
@@ -20,7 +19,7 @@ def home():
 async def start(update, context):
     user_id = update.effective_user.id
     
-    # Si l'utilisateur est déjà validé dans Supabase, on lui donne l'accès direct
+    # Si l'utilisateur est déjà validé, on lui redonne l'accès direct
     if database.est_valide(user_id):
         keyboard = [[InlineKeyboardButton("🚀 Lancer l'Application FIFA", web_app=WebAppInfo(url=URL_WEBAPP))]]
         await update.message.reply_text("Re-bonjour champion ! Voici ton accès direct :", reply_markup=InlineKeyboardMarkup(keyboard))
@@ -39,19 +38,19 @@ async def handle_message(update, context):
     user_id = update.effective_user.id
     message_text = update.message.text
     
-    # Enregistre l'ID Melbet et met le statut en 'pending' dans Supabase
+    # On enregistre l'ID Melbet et on met le statut à 'pending'
     database.ajouter_utilisateur(user_id, message_text)
     
     await update.message.reply_text("ID Melbet reçu ! J'ai transmis ta demande à l'admin. Attends la validation. ✅")
     
-    # Alerte l'admin avec les informations pour valider
+    # Prévenir l'admin (toi)
     await context.bot.send_message(
         chat_id=TON_ID_ADMIN, 
         text=f"🚨 Nouvelle demande FIFA :\nUser ID: {user_id}\nID Melbet: {message_text}\n\nTape: /valider {user_id}"
     )
 
 async def valider(update, context):
-    # Sécurité : seul l'admin peut exécuter cette commande
+    # Vérification de sécurité : seul l'admin peut valider
     if update.effective_user.id != TON_ID_ADMIN:
         return
     
@@ -59,7 +58,7 @@ async def valider(update, context):
         user_id_a_valider = int(context.args[0])
         database.valider_utilisateur(user_id_a_valider)
         
-        # Envoi du bouton WebApp à l'abonné validé
+        # Envoi automatique du bouton WebApp à l'utilisateur validé
         keyboard = [[InlineKeyboardButton("🚀 Lancer l'Application FIFA", web_app=WebAppInfo(url=URL_WEBAPP))]]
         await context.bot.send_message(
             chat_id=user_id_a_valider,
@@ -68,31 +67,20 @@ async def valider(update, context):
         )
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
-async def main_bot():
-    bot_app = ApplicationBuilder().token(TOKEN).build()
-    bot_app.add_handler(CommandHandler("start", start))
-    bot_app.add_handler(CommandHandler("valider", valider))
-    bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-    
-    await bot_app.initialize()
-    await bot_app.start()
-    await bot_app.updater.start_polling(drop_pending_updates=True)
-    
-    # Maintient le bot actif dans son thread
-    stop_event = asyncio.Event()
-    await stop_event.wait()
+def run_web():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host='0.0.0.0', port=port, use_reloader=False)
 
-def run_bot():
-    try:
-        print("Démarrage du thread du bot Telegram avec asyncio.run...")
-        asyncio.run(main_bot())
-    except Exception as e:
-        print(f"❌ Erreur critique dans le bot Telegram : {e}")
-
-# Lancement automatique du bot en arrière-plan dès que Gunicorn charge l'application sur Render
-if TOKEN:
-    bot_thread = Thread(target=run_bot, daemon=True)
-    bot_thread.start()
-    print("Thread du bot initialisé.")
-else:
-    print("❌ ERREUR : Aucun TOKEN trouvé dans les variables d'environnement !")
+# Lancement propre : Flask tourne en arrière-plan via un thread, et le bot tourne directement ici
+if __name__ == '__main__':
+    Thread(target=run_web, daemon=True).start()
+    
+    if TOKEN:
+        bot_app = ApplicationBuilder().token(TOKEN).build()
+        bot_app.add_handler(CommandHandler("start", start))
+        bot_app.add_handler(CommandHandler("valider", valider))
+        bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+        print("Lancement du bot en mode polling (modèle de l'ancien robot)...")
+        bot_app.run_polling(drop_pending_updates=True)
+    else:
+        print("❌ ERREUR : Aucun TOKEN trouvé !")
