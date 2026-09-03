@@ -1,5 +1,5 @@
-
 import os
+import asyncio
 import database # Importe ton fichier database.py
 from flask import Flask, render_template
 from threading import Thread
@@ -10,8 +10,8 @@ app = Flask(__name__, template_folder='templates', static_folder='static')
 TOKEN = os.environ.get("TOKEN")
 TON_ID_ADMIN = 5724620019 # Ton ID Admin Telegram
 
-# Remplace par l'URL exacte de ton service Render
-URL_WEBAPP = "https://fifa-bot-vip.onrender.com"
+# URL exacte de ton service sur Render
+URL_WEBAPP = "https://fifa-bot-rnbr.onrender.com"
 
 @app.route('/')
 def home():
@@ -68,17 +68,18 @@ async def valider(update, context):
         )
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
-def run_web():
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host='0.0.0.0', port=port)
-
-if __name__ == '__main__':
-    # Lancement du serveur web Flask en arrière-plan pour Render et la WebApp
-    Thread(target=run_web).start()
+def run_bot():
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
     
-    # Lancement du Bot Telegram
     bot_app = ApplicationBuilder().token(TOKEN).build()
     bot_app.add_handler(CommandHandler("start", start))
     bot_app.add_handler(CommandHandler("valider", valider))
     bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    
     bot_app.run_polling()
+
+# Lancement automatique du bot en arrière-plan dès que Gunicorn charge l'application sur Render
+if TOKEN:
+    bot_thread = Thread(target=run_bot, daemon=True)
+    bot_thread.start()
