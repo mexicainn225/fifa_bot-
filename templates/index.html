@@ -39,7 +39,6 @@
             font-size: 0.9rem;
         }
 
-        /* Panneau de contrôle et d'analyse */
         .prediction-panel {
             background-color: var(--card-bg);
             border: 1px solid #334155;
@@ -75,7 +74,7 @@
             margin-bottom: 5px;
         }
 
-        input[type="time"] {
+        select#match-time {
             background-color: #0f172a;
             color: var(--text-color);
             border: 1px solid #475569;
@@ -83,6 +82,7 @@
             border-radius: 8px;
             font-size: 1rem;
             outline: none;
+            width: 200px;
         }
 
         #btn-analyser {
@@ -95,7 +95,7 @@
             font-weight: 600;
             cursor: pointer;
             transition: background 0.2s;
-            display: none; /* Caché par défaut */
+            display: none;
             margin: 0 auto;
         }
 
@@ -125,7 +125,6 @@
             font-size: 0.85rem;
         }
 
-        /* Grille des équipes cliquables */
         .container {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -147,16 +146,16 @@
             justify-content: center;
             cursor: pointer;
             transition: all 0.2s ease;
+            user-select: none;
         }
 
         .match-card:hover {
             border-color: #475569;
         }
 
-        /* Style lorsqu'une équipe est sélectionnée */
         .match-card.selected {
             border-color: var(--selected-border);
-            background-color: rgba(59, 130, 246, 0.1);
+            background-color: rgba(59, 130, 246, 0.15);
         }
 
         .logo-container {
@@ -166,6 +165,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            pointer-events: none; /* Empêche le clic de bloquer sur l'image */
         }
 
         .logo-container img {
@@ -177,6 +177,7 @@
         .team-name {
             font-weight: 600;
             font-size: 0.95rem;
+            pointer-events: none; /* Empêche le clic de bloquer sur le texte */
         }
     </style>
 </head>
@@ -187,167 +188,159 @@
         <p class="subtitle">Clique sur 2 équipes pour simuler le match</p>
     </header>
 
-    <!-- Panneau de Simulation -->
     <div class="prediction-panel">
         <h2>Match Sélectionné</h2>
         <div id="info-selection" class="info-selection">Aucune équipe sélectionnée (Choisis-en 2 ci-dessous)</div>
         
         <div class="time-container">
             <label for="match-time">Heure du match :</label>
-            <input type="time" id="match-time" onchange="verifierFormulaire()">
+            <select id="match-time" onchange="verifierFormulaire()">
+                <option value="">-- Choisir une heure --</option>
+                <!-- Les options de 10 en 10 minutes seront générées automatiquement -->
+            </select>
         </div>
 
         <button id="btn-analyser" onclick="lancerAnalyse()">🔍 Lancer l'analyse</button>
         <div id="resultat-analyse"></div>
     </div>
 
-    <!-- Grille des équipes -->
     <div class="container">
-        <!-- Arsenal FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Arsenal FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Arsenal FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Arsenal_FC.svg.webp') }}" alt="Arsenal FC"></div>
             <div class="team-name">Arsenal FC</div>
         </div>
-
-        <!-- Aston Villa FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Aston Villa FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Aston Villa FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Aston_Villa_FC_2024.svg.webp') }}" alt="Aston Villa FC"></div>
             <div class="team-name">Aston Villa FC</div>
         </div>
-
-        <!-- Brentford FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Brentford FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Brentford FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Brentford_FC_crest.svg') }}" alt="Brentford FC"></div>
             <div class="team-name">Brentford FC</div>
         </div>
-
-        <!-- Chelsea FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Chelsea FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Chelsea FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='chelsea.jpg') }}" alt="Chelsea FC"></div>
             <div class="team-name">Chelsea FC</div>
         </div>
-
-        <!-- Crystal Palace FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Crystal Palace FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Crystal Palace FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Crystal_Palace_FC_-_2022.svg') }}" alt="Crystal Palace FC"></div>
             <div class="team-name">Crystal Palace FC</div>
         </div>
-
-        <!-- Everton FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Everton FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Everton FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='everton.png') }}" alt="Everton FC"></div>
             <div class="team-name">Everton FC</div>
         </div>
-
-        <!-- Fulham FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Fulham FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Fulham FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Fulham_FC_(shield).svg') }}" alt="Fulham FC"></div>
             <div class="team-name">Fulham FC</div>
         </div>
-
-        <!-- Luton Town FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Luton Town FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Luton Town FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Luton_Town_2009_FC.svg') }}" alt="Luton Town FC"></div>
             <div class="team-name">Luton Town FC</div>
         </div>
-
-        <!-- Manchester United -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Manchester United')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Manchester United')">
             <div class="logo-container"><img src="{{ url_for('static', filename='ManchesterUnited.webp') }}" alt="Manchester United"></div>
             <div class="team-name">Manchester United</div>
         </div>
-
-        <!-- Manchester City FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Manchester City FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Manchester City FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Manchester_City_FC_badge.svg') }}" alt="Manchester City FC"></div>
             <div class="team-name">Manchester City FC</div>
         </div>
-
-        <!-- Newcastle United -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Newcastle United')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Newcastle United')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Newcastle_United_Logo.svg.webp') }}" alt="Newcastle United"></div>
             <div class="team-name">Newcastle United</div>
         </div>
-
-        <!-- Nottingham Forest -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Nottingham Forest')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Nottingham Forest')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Nottingham.jpg') }}" alt="Nottingham Forest"></div>
             <div class="team-name">Nottingham Forest</div>
         </div>
-
-        <!-- Tottenham Hotspur -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Tottenham Hotspur')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Tottenham Hotspur')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Tottenham-Hotspur-logo.png') }}" alt="Tottenham Hotspur"></div>
             <div class="team-name">Tottenham Hotspur</div>
         </div>
-
-        <!-- West Ham United FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'West Ham United FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'West Ham United FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='West_Ham_United_FC_logo.svg.webp') }}" alt="West Ham United FC"></div>
             <div class="team-name">West Ham United FC</div>
         </div>
-
-        <!-- Wolverhampton -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Wolverhampton')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Wolverhampton')">
             <div class="logo-container"><img src="{{ url_for('static', filename='Wolverhampton-620x413.png') }}" alt="Wolverhampton"></div>
             <div class="team-name">Wolverhampton</div>
         </div>
-
-        <!-- Bournemouth FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Bournemouth FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Bournemouth FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='bournemouth.jpg') }}" alt="Bournemouth FC"></div>
             <div class="team-name">Bournemouth FC</div>
         </div>
-
-        <!-- Brighton FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Brighton FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Brighton FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='brighton.png') }}" alt="Brighton FC"></div>
             <div class="team-name">Brighton FC</div>
         </div>
-
-        <!-- Burnley FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Burnley FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Burnley FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='burnley.png') }}" alt="Burnley FC"></div>
             <div class="team-name">Burnley FC</div>
         </div>
-
-        <!-- Liverpool FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Liverpool FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Liverpool FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='liverpool.jpg') }}" alt="Liverpool FC"></div>
             <div class="team-name">Liverpool FC</div>
         </div>
-
-        <!-- Sheffield FC -->
-        <div class="match-card" onclick="selectionnerEquipe(this, 'Sheffield FC')">
+        <div class="match-card" onclick="gererClicEquipe(this, 'Sheffield FC')">
             <div class="logo-container"><img src="{{ url_for('static', filename='sheffield(1).png') }}" alt="Sheffield FC"></div>
             <div class="team-name">Sheffield FC</div>
         </div>
     </div>
 
     <script>
+        // Génération automatique des heures de 10 en 10 minutes (00:00 à 23:50)
+        window.onload = function() {
+            const selectTime = document.getElementById('match-time');
+            for (let h = 0; h < 24; h++) {
+                for (let m = 0; m < 60; m += 10) {
+                    const heureStr = String(h).padStart(2, '0');
+                    const minStr = String(m).padStart(2, '0');
+                    const timeValue = `${heureStr}:${minStr}`;
+                    
+                    const option = document.createElement('option');
+                    option.value = timeValue;
+                    option.textContent = timeValue;
+                    selectTime.appendChild(option);
+                }
+            }
+        };
+
+        let selectedCard1 = null;
+        let selectedCard2 = null;
         let equipe1 = null;
         let equipe2 = null;
 
-        function selectionnerEquipe(element, nomEquipe) {
-            const resultatDiv = document.getElementById('resultat-analyse');
-            resultatDiv.innerHTML = ''; // Reset du résultat
+        function gererClicEquipe(cardElement, nomEquipe) {
+            document.getElementById('resultat-analyse').innerHTML = '';
 
-            // Si l'équipe est déjà sélectionnée, on la désélectionne
-            if (element.classList.contains('selected')) {
-                element.classList.remove('selected');
-                if (equipe1 === nomEquipe) equipe1 = null;
-                else if (equipe2 === nomEquipe) equipe2 = null;
+            // Si la carte est déjà sélectionnée, on la désélectionne
+            if (cardElement.classList.contains('selected')) {
+                cardElement.classList.remove('selected');
+                if (selectedCard1 === cardElement) {
+                    selectedCard1 = selectedCard2;
+                    equipe1 = equipe2;
+                    selectedCard2 = null;
+                    equipe2 = null;
+                } else if (selectedCard2 === cardElement) {
+                    selectedCard2 = null;
+                    equipe2 = null;
+                }
             } else {
-                // Gestion de la sélection (maximum 2 équipes)
+                // Sinon on l'ajoute si on a moins de 2 sélections
                 if (!equipe1) {
                     equipe1 = nomEquipe;
-                    element.classList.add('selected');
+                    selectedCard1 = cardElement;
+                    cardElement.classList.add('selected');
                 } else if (!equipe2 && equipe1 !== nomEquipe) {
                     equipe2 = nomEquipe;
-                    element.classList.add('selected');
+                    selectedCard2 = cardElement;
+                    cardElement.classList.add('selected');
                 } else {
-                    // Si 2 sont déjà sélectionnées, on remplace la dernière
-                    return; 
+                    // Si on essaie d'en sélectionner une 3ème, on remplace la 2ème
+                    if (selectedCard2) selectedCard2.classList.remove('selected');
+                    equipe2 = nomEquipe;
+                    selectedCard2 = cardElement;
+                    cardElement.classList.add('selected');
                 }
             }
 
@@ -359,7 +352,7 @@
             if (equipe1 && equipe2) {
                 infoText.innerHTML = `⚔️ <b>${equipe1}</b> vs <b>${equipe2}</b>`;
             } else if (equipe1) {
-                infoText.innerHTML = `📌 Équipe 1 : <b>${equipe1</b> (Choisis une 2e équipe)`;
+                infoText.innerHTML = `📌 Équipe 1 : <b>${equipe1}</b> (Choisis une 2e équipe)`;
             } else {
                 infoText.innerHTML = `Aucune équipe sélectionnée (Choisis-en 2 ci-dessous)`;
             }
@@ -369,11 +362,8 @@
         function verifierFormulaire() {
             const matchTime = document.getElementById('match-time').value;
             const btnAnalyser = document.getElementById('btn-analyser');
-            const resultatDiv = document.getElementById('resultat-analyse');
+            document.getElementById('resultat-analyse').innerHTML = '';
 
-            resultatDiv.innerHTML = '';
-
-            // Le bouton apparaît si les 2 équipes sont choisies et qu'une heure est entrée
             if (equipe1 && equipe2 && matchTime) {
                 btnAnalyser.style.display = 'block';
             } else {
@@ -387,14 +377,11 @@
 
             if (!equipe1 || !equipe2 || !matchTime) return;
 
-            // --- VÉRIFICATION DE L'HEURE ACTUELLE ---
             const maintenant = new Date();
             const heuresActuelles = String(maintenant.getHours()).padStart(2, '0');
             const minutesActuelles = String(maintenant.getMinutes()).padStart(2, '0');
             const heureActuelleStr = `${heuresActuelles}:${minutesActuelles}`;
 
-            // Si l'heure du match n'est PAS ENCORE PASSÉE par rapport à l'heure actuelle
-            // Note: On compare les chaînes "HH:MM", ce qui fonctionne directement au format 24h
             if (matchTime > heureActuelleStr) {
                 resultatDiv.innerHTML = `
                     <div class="error-card">
@@ -405,376 +392,18 @@
                 return;
             }
 
-            // --- GÉNÉRATION DÉterministe (Même résultat pour tout le monde pour un même match + même heure) ---
-            // On crée une "graine" unique basée sur les noms des équipes et l'heure
+            // Génération identique pour tout le monde selon le match et l'heure
             const chaineUnique = equipe1 + equipe2 + matchTime;
             let hash = 0;
             for (let i = 0; i < chaineUnique.length; i++) {
                 hash = (hash << 5) - hash + chaineUnique.charCodeAt(i);
-                hash |= 0; // Convert to 32bit integer
+                hash |= 0;
             }
             const randomFixe = Math.abs(hash);
 
-            // 1. Choix du vainqueur basé sur le hash fixe
             const vainqueur = (randomFixe % 2 === 0) ? equipe1 : equipe2;
+            const totalButs = 14 + (randomFixe % 3); // 14, 15 ou 16
 
-            // 2. Total de buts entre 14, 15 et 16 basé sur le hash fixe
-            const totalButs = 14 + (randomFixe % 3); 
-
-            // Affichage du résultat fixe pour tout le monde
-            resultatDiv.innerHTML = `
-                <div class="result-card">
-                    <p style="margin: 0 0 5px 0;">🏆 Vainqueur : <b>${vainqueur}</b></p>
-                    <p style="margin: 0;">⚽ Total de buts : <b>${totalButs} buts</b></p>
-                </div>
-            `;
-        }
-    </script>
-</body>
-</html>            background-color: #0f172a;
-            color: var(--text-color);
-            border: 1px solid #475569;
-            padding: 10px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            flex: 1;
-            min-width: 200px;
-            outline: none;
-        }
-
-        #btn-analyser {
-            background-color: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            display: none; /* Caché par défaut */
-            margin: 0 auto;
-        }
-
-        #btn-analyser:hover {
-            background-color: #2563eb;
-        }
-
-        #resultat-analyse {
-            margin-top: 15px;
-            font-size: 0.95rem;
-        }
-
-        .result-card {
-            background: rgba(34, 197, 94, 0.1);
-            border: 1px solid var(--success-color);
-            padding: 12px;
-            border-radius: 8px;
-            color: #4ade80;
-        }
-
-        /* Grille des équipes */
-        .container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            max-width: 600px;
-            margin: 0 auto;
-        }
-
-        .match-card {
-            background-color: var(--card-bg);
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            border: 1px solid #334155;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-container {
-            width: 50px;
-            height: 50px;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .logo-container img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain;
-        }
-
-        .team-name {
-            font-weight: 600;
-            font-size: 0.95rem;
-        }
-    </style>
-</head>
-<body>
-
-    <header>
-        <h1>⚽ Salon VIP FIFA</h1>
-        <p class="subtitle">Sélectionne deux équipes pour lancer une prédiction</p>
-    </header>
-
-    <!-- Zone de Simulation de Prédiction -->
-    <div class="prediction-panel">
-        <h2>Simulateur de Match</h2>
-        <div class="selectors-container">
-            <select id="team1" onchange="verifierSelection()">
-                <option value="">-- Choisir l'équipe 1 --</option>
-                <option value="Arsenal FC">Arsenal FC</option>
-                <option value="Aston Villa FC">Aston Villa FC</option>
-                <option value="Brentford FC">Brentford FC</option>
-                <option value="Chelsea FC">Chelsea FC</option>
-                <option value="Crystal Palace FC">Crystal Palace FC</option>
-                <option value="Everton FC">Everton FC</option>
-                <option value="Fulham FC">Fulham FC</option>
-                <option value="Luton Town FC">Luton Town FC</option>
-                <option value="Manchester United">Manchester United</option>
-                <option value="Manchester City FC">Manchester City FC</option>
-                <option value="Newcastle United">Newcastle United</option>
-                <option value="Nottingham Forest">Nottingham Forest</option>
-                <option value="Tottenham Hotspur">Tottenham Hotspur</option>
-                <option value="West Ham United FC">West Ham United FC</option>
-                <option value="Wolverhampton">Wolverhampton</option>
-                <option value="Bournemouth FC">Bournemouth FC</option>
-                <option value="Brighton FC">Brighton FC</option>
-                <option value="Burnley FC">Burnley FC</option>
-                <option value="Liverpool FC">Liverpool FC</option>
-                <option value="Sheffield FC">Sheffield FC</option>
-            </select>
-
-            <select id="team2" onchange="verifierSelection()">
-                <option value="">-- Choisir l'équipe 2 --</option>
-                <option value="Arsenal FC">Arsenal FC</option>
-                <option value="Aston Villa FC">Aston Villa FC</option>
-                <option value="Brentford FC">Brentford FC</option>
-                <option value="Chelsea FC">Chelsea FC</option>
-                <option value="Crystal Palace FC">Crystal Palace FC</option>
-                <option value="Everton FC">Everton FC</option>
-                <option value="Fulham FC">Fulham FC</option>
-                <option value="Luton Town FC">Luton Town FC</option>
-                <option value="Manchester United">Manchester United</option>
-                <option value="Manchester City FC">Manchester City FC</option>
-                <option value="Newcastle United">Newcastle United</option>
-                <option value="Nottingham Forest">Nottingham Forest</option>
-                <option value="Tottenham Hotspur">Tottenham Hotspur</option>
-                <option value="West Ham United FC">West Ham United FC</option>
-                <option value="Wolverhampton">Wolverhampton</option>
-                <option value="Bournemouth FC">Bournemouth FC</option>
-                <option value="Brighton FC">Brighton FC</option>
-                <option value="Burnley FC">Burnley FC</option>
-                <option value="Liverpool FC">Liverpool FC</option>
-                <option value="Sheffield FC">Sheffield FC</option>
-            </select>
-        </div>
-
-        <button id="btn-analyser" onclick="lancerAnalyse()">🔍 Lancer l'analyse</button>
-        <div id="resultat-analyse"></div>
-    </div>
-
-    <!-- Grille des équipes (sans badge "Analyse VIP") -->
-    <div class="container">
-        <!-- Arsenal FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Arsenal_FC.svg.webp') }}" alt="Arsenal FC">
-            </div>
-            <div class="team-name">Arsenal FC</div>
-        </div>
-
-        <!-- Aston Villa FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Aston_Villa_FC_2024.svg.webp') }}" alt="Aston Villa FC">
-            </div>
-            <div class="team-name">Aston Villa FC</div>
-        </div>
-
-        <!-- Brentford FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Brentford_FC_crest.svg') }}" alt="Brentford FC">
-            </div>
-            <div class="team-name">Brentford FC</div>
-        </div>
-
-        <!-- Chelsea FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='chelsea.jpg') }}" alt="Chelsea FC">
-            </div>
-            <div class="team-name">Chelsea FC</div>
-        </div>
-
-        <!-- Crystal Palace FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Crystal_Palace_FC_-_2022.svg') }}" alt="Crystal Palace FC">
-            </div>
-            <div class="team-name">Crystal Palace FC</div>
-        </div>
-
-        <!-- Everton FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='everton.png') }}" alt="Everton FC">
-            </div>
-            <div class="team-name">Everton FC</div>
-        </div>
-
-        <!-- Fulham FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Fulham_FC_(shield).svg') }}" alt="Fulham FC">
-            </div>
-            <div class="team-name">Fulham FC</div>
-        </div>
-
-        <!-- Luton Town FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Luton_Town_2009_FC.svg') }}" alt="Luton Town FC">
-            </div>
-            <div class="team-name">Luton Town FC</div>
-        </div>
-
-        <!-- Manchester United -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='ManchesterUnited.webp') }}" alt="Manchester United">
-            </div>
-            <div class="team-name">Manchester United</div>
-        </div>
-
-        <!-- Manchester City FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Manchester_City_FC_badge.svg') }}" alt="Manchester City FC">
-            </div>
-            <div class="team-name">Manchester City FC</div>
-        </div>
-
-        <!-- Newcastle United -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Newcastle_United_Logo.svg.webp') }}" alt="Newcastle United">
-            </div>
-            <div class="team-name">Newcastle United</div>
-        </div>
-
-        <!-- Nottingham Forest -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Nottingham.jpg') }}" alt="Nottingham Forest">
-            </div>
-            <div class="team-name">Nottingham Forest</div>
-        </div>
-
-        <!-- Tottenham Hotspur -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Tottenham-Hotspur-logo.png') }}" alt="Tottenham Hotspur">
-            </div>
-            <div class="team-name">Tottenham Hotspur</div>
-        </div>
-
-        <!-- West Ham United FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='West_Ham_United_FC_logo.svg.webp') }}" alt="West Ham United FC">
-            </div>
-            <div class="team-name">West Ham United FC</div>
-        </div>
-
-        <!-- Wolverhampton -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='Wolverhampton-620x413.png') }}" alt="Wolverhampton">
-            </div>
-            <div class="team-name">Wolverhampton</div>
-        </div>
-
-        <!-- Bournemouth FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='bournemouth.jpg') }}" alt="Bournemouth FC">
-            </div>
-            <div class="team-name">Bournemouth FC</div>
-        </div>
-
-        <!-- Brighton FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='brighton.png') }}" alt="Brighton FC">
-            </div>
-            <div class="team-name">Brighton FC</div>
-        </div>
-
-        <!-- Burnley FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='burnley.png') }}" alt="Burnley FC">
-            </div>
-            <div class="team-name">Burnley FC</div>
-        </div>
-
-        <!-- Liverpool FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='liverpool.jpg') }}" alt="Liverpool FC">
-            </div>
-            <div class="team-name">Liverpool FC</div>
-        </div>
-
-        <!-- Sheffield FC -->
-        <div class="match-card">
-            <div class="logo-container">
-                <img src="{{ url_for('static', filename='sheffield(1).png') }}" alt="Sheffield FC">
-            </div>
-            <div class="team-name">Sheffield FC</div>
-        </div>
-    </div>
-
-    <script>
-        function verifierSelection() {
-            const team1 = document.getElementById('team1').value;
-            const team2 = document.getElementById('team2').value;
-            const btnAnalyser = document.getElementById('btn-analyser');
-            const resultatDiv = document.getElementById('resultat-analyse');
-
-            // Réinitialise le résultat si on change de sélection
-            resultatDiv.innerHTML = '';
-
-            // Affiche le bouton si 2 équipes différentes sont sélectionnées
-            if (team1 && team2 && team1 !== team2) {
-                btnAnalyser.style.display = 'block';
-            } else {
-                btnAnalyser.style.display = 'none';
-            }
-        }
-
-        function lancerAnalyse() {
-            const team1 = document.getElementById('team1').value;
-            const team2 = document.getElementById('team2').value;
-
-            if (!team1 || !team2 || team1 === team2) return;
-
-            // 1. Victoire aléatoire de l'une des deux équipes
-            const vainqueur = Math.random() < 0.5 ? team1 : team2;
-
-            // 2. Total de buts aléatoire entre 14 et 16 inclus
-            const totalButs = Math.floor(Math.random() * (16 - 14 + 1)) + 14;
-
-            // Affichage propre du résultat
-            const resultatDiv = document.getElementById('resultat-analyse');
             resultatDiv.innerHTML = `
                 <div class="result-card">
                     <p style="margin: 0 0 5px 0;">🏆 Vainqueur : <b>${vainqueur}</b></p>
