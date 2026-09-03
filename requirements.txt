@@ -1,5 +1,3 @@
-Flask
-gunicorn
-python-telegram-bot
+flask
 supabase
-httpx
+python-telegram-bot
