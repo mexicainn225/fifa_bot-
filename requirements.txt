@@ -1,3 +1,4 @@
 flask
 supabase
 python-telegram-bot
+httpx<0.28.0
