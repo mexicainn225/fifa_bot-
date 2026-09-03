@@ -2,7 +2,7 @@ import os
 import database
 from flask import Flask, request
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, WebAppInfo, Update
-from telegram import Bot, BotCommand
+from telegram import Bot
 from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters
 import asyncio
 
@@ -11,7 +11,7 @@ TOKEN = os.environ.get("TOKEN")
 TON_ID_ADMIN = 5724620019
 URL_WEBAPP = "https://fifa-bot-rnbr.onrender.com"
 
-# Initialisation de l'application Telegram pour les handlers
+# Construction de l'application Telegram
 telegram_app = ApplicationBuilder().token(TOKEN).build()
 
 async def start(update: Update, context):
@@ -58,28 +58,36 @@ async def valider(update: Update, context):
         )
         await update.message.reply_text(f"Utilisateur {user_id_a_valider} validé avec succès !")
 
-# Enregistrement des commandes
+# Enregistrement des handlers
 telegram_app.add_handler(CommandHandler("start", start))
 telegram_app.add_handler(CommandHandler("valider", valider))
 telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
 
 @app.route('/')
 def home():
-    return "Bot FIFA en ligne et actif !"
+    return "Bot FIFA Webhook Actif !"
 
 @app.route(f'/{TOKEN}', methods=['POST'])
 def webhook():
-    """Route que Telegram appelle automatiquement à chaque message"""
-    update = Update.de_json(request.get_json(force=True), telegram_app.bot)
-    asyncio.run(telegram_app.process_update(update))
+    """Route sécurisée appelée par Telegram"""
+    json_data = request.get_json(force=True)
+    update = Update.de_json(json_data, telegram_app.bot)
+    
+    async def process():
+        await telegram_app.initialize()
+        await telegram_app.process_update(update)
+        
+    asyncio.run(process())
     return 'ok', 200
 
 if __name__ == '__main__':
-    # Configuration automatique du webhook auprès de Telegram au démarrage
-    bot_instance = Bot(TOKEN)
-    webhook_url = f"{URL_WEBAPP}/{TOKEN}"
-    asyncio.run(bot_instance.set_webhook(url=webhook_url))
+    # Configuration du webhook auprès de Telegram
+    async def setup_webhook():
+        bot = Bot(TOKEN)
+        await bot.set_webhook(url=f"{URL_WEBAPP}/{TOKEN}")
     
-    # Lancement du serveur web Flask sur le port de Render
+    asyncio.run(setup_webhook())
+    
+    # Démarrage de Flask
     port = int(os.environ.get("PORT", 10000))
     app.run(host='0.0.0.0', port=port)
