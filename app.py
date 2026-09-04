@@ -54,9 +54,9 @@ def webhook():
                 message = (
                     "Bienvenue sur le bot FIFA VIP ⚽\n\n"
                     "Pour débloquer tes accès aux pronostics, suis ces étapes :\n\n"
-                    "1️⃣ Inscris-toi sur Melbet ici : https://lkbb.cc/78634e\n"
-                    "2️⃣ Utilise le code promo : COK225\n"
-                    "3️⃣ Effectue une recharge sur ton compte.\n"
+                    "1️⃣ Inscris-toi sur Melbet ici : https://refpa3665.com/L?tag=d_6047849m_2170c_&site=6047849&ad=2170\n"
+                    "2️⃣ Utilise le code promo : COK26K\n"
+                    "3️⃣ Effectue une recharge DE 5MILLE sur ton compte.\n"
                     "4️⃣ Envoie ton ID Melbet ici pour validation."
                 )
                 send_telegram_message(chat_id, message)
